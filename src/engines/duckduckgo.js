@@ -53,7 +53,7 @@ async function scrapeDuckDuckGo(q, options = {}) {
 
   return {
     organic_results,
-    total_results: organic_results.length * 12340
+    total_results: organic_results.length
   };
 }
 

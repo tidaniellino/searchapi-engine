@@ -121,7 +121,7 @@ async function scrapeGoogle(q, options = {}) {
       current: currentPage,
       next: `https://www.google.com/search?q=${encodeURIComponent(q)}&start=${currentPage * 10}`
     },
-    total_results: cleanOrganic.length > 0 ? (cleanOrganic.length * 142000000) : 0
+    total_results: cleanOrganic.length
   };
 }
 

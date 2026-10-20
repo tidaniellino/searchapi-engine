@@ -81,9 +81,9 @@ async function executeSearch(engineKey = 'google', query, options = {}, baseUrl 
     },
     search_information: {
       query_displayed: query,
-      total_results: data.total_results || 1000000,
-      time_taken_displayed: parseFloat((Math.random() * 0.4 + 0.2).toFixed(2)),
-      detected_location: options.location || (options.gl === 'br' ? 'Brazil' : 'United States')
+      total_results: typeof data.total_results === 'number' ? data.total_results : 0,
+      time_taken_displayed: totalSeconds,
+      detected_location: options.location || (options.gl === 'br' ? 'Brasil' : 'United States')
     },
     ...data
   };

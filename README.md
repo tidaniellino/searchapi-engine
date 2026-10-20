@@ -73,14 +73,21 @@ Endpoint principal para realizar consultas.
 }
 ```
 
+#### Autenticação:
+A API é protegida por **Chave Mestra Privada** para uso exclusivo do proprietário.
+Você pode enviar a chave de duas formas em qualquer requisição:
+1. **Query parameter**: `?api_key=SUA_CHAVE_MESTRA`
+2. **Authorization header**: `Authorization: Bearer SUA_CHAVE_MESTRA`
+
+A chave é configurada no arquivo `.env` através da variável `API_KEY` (ex: `sk_private_master_daniel_2026`).
+
 #### Outros Endpoints:
 - `GET /api/v1/searches/:id`: Recupera uma busca armazenada em cache pelo seu ID.
 - `GET /api/v1/searches/:id.html`: Pré-visualização da busca em HTML.
-- `GET /api/v1/account`: Informações da conta, limites de cota mensal e consumo.
+- `GET /api/v1/account`: Informações de status, plano ilimitado e contador de requisições em tempo real.
 - `GET /api/v1/locations?q=...`: Busca e resolução geográfica de cidades e coordenadas.
 - `GET /api/v1/engines`: Lista de todos os motores disponíveis e seus parâmetros.
-- `GET /api/v1/api-keys`: Lista as chaves de API ativas.
-- `POST /api/v1/api-keys`: Cria uma nova chave de API.
+- `POST /api/v1/auth/verify`: Validação de chave mestra.
 
 ---
 
@@ -91,10 +98,11 @@ Acesse no navegador:
 http://localhost:3000
 ```
 
+- **Acesso Seguro**: Modal com autenticação por chave mestra com armazenamento local seguro.
 - **Seletor de Mecanismo**: Alterne entre Google, News, Imagens, Scholar, Maps, Bing, YouTube e Amazon.
 - **Visualizador JSON Interativo**: Destaque de sintaxe, contadores de latência e botão de copiar.
 - **Gerador de Código em Tempo Real**: Copie snippets prontos em cURL, Python (`requests`), JavaScript (`fetch`), Node.js (`axios`), Go e PHP.
-- **Gestão de Chaves de API**: Modal para criar e gerenciar chaves e acompanhar a cota de buscas.
+- **Uso em Tempo Real**: Monitoramento dinâmico de consultas executadas (sem cotas fictícias).
 
 ---
 
@@ -103,6 +111,9 @@ http://localhost:3000
 ```bash
 # Instalar dependências
 npm install
+
+# Configurar chave no arquivo .env
+API_KEY=sua_chave_secreta
 
 # Iniciar o servidor
 node server.js

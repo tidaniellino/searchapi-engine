@@ -85,7 +85,7 @@ async function scrapeBing(q, options = {}) {
   return {
     organic_results,
     related_searches,
-    total_results: organic_results.length * 158000
+    total_results: organic_results.length
   };
 }
 

@@ -256,6 +256,7 @@ print_r($data);
 
         jsonOutput.innerHTML = syntaxHighlight(data);
         updateCodeView();
+        refreshQuota();
       } else if (res.status === 401) {
         statusBadge.textContent = '401 Não Autorizado';
         statusBadge.className = 'stat-pill stat-danger';
@@ -396,7 +397,18 @@ print_r($data);
     }
   });
 
+  async function refreshQuota() {
+    try {
+      const res = await fetch(`/api/v1/account?api_key=${activeApiKey}`);
+      if (res.ok) {
+        const data = await res.json();
+        quotaText.textContent = `Uso Pessoal: ${data.searches_used || 0} consultas • Ilimitado`;
+      }
+    } catch(e) {}
+  }
+
   // Initial setup
   updateAuthDisplay();
+  refreshQuota();
   performSearch();
 });
