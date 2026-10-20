@@ -1,56 +1,41 @@
-const { generateApiKey } = require('./utils/idGenerator');
+require('dotenv').config();
 
-// Store API keys in-memory with optional persistence
-class KeyManager {
+// Private Master Key Configuration for Owner
+class PrivateKeyManager {
   constructor() {
-    this.keys = new Map();
-    // Default demo/master key for immediate testing
-    this.defaultKey = 'sk_live_demo1234567890abcdef';
-    this.keys.set(this.defaultKey, {
-      key: this.defaultKey,
-      name: 'Default Playground Key',
-      plan: 'Developer (10,000 req/mo)',
-      requestsUsed: 142,
-      requestsLimit: 10000,
-      createdAt: new Date().toISOString()
-    });
+    // Master key configured via environment variable, or default private key
+    this.masterKey = process.env.API_KEY || process.env.API_SECRET_KEY || 'sk_private_master_daniel_2026';
+    this.requestsUsed = 0;
+  }
+
+  getMasterKey() {
+    return this.masterKey;
   }
 
   isValid(apiKey) {
     if (!apiKey) return false;
-    return this.keys.has(apiKey);
+    // Strict comparison: only the owner's master key is allowed
+    return apiKey === this.masterKey;
   }
 
-  getKey(apiKey) {
-    return this.keys.get(apiKey);
+  incrementUsage() {
+    this.requestsUsed++;
   }
 
-  incrementUsage(apiKey) {
-    const record = this.keys.get(apiKey);
-    if (record) {
-      record.requestsUsed++;
-    }
-  }
-
-  createKey(name = 'New API Key', plan = 'Developer') {
-    const key = generateApiKey();
-    const keyData = {
-      key,
-      name,
-      plan: `${plan} (10,000 req/mo)`,
-      requestsUsed: 0,
-      requestsLimit: 10000,
-      createdAt: new Date().toISOString()
+  getAccountInfo() {
+    return {
+      status: 'Private Self-Hosted Instance',
+      owner: 'tidaniellino',
+      plan: 'Personal Private Use (Unlimited)',
+      plan_searches_limit: 'Unlimited',
+      searches_used: this.requestsUsed,
+      searches_left: 'Unlimited',
+      auth_mode: 'Master Key Protection',
+      master_key_configured: Boolean(process.env.API_KEY || process.env.API_SECRET_KEY)
     };
-    this.keys.set(key, keyData);
-    return keyData;
-  }
-
-  getAllKeys() {
-    return Array.from(this.keys.values());
   }
 }
 
-const keyManager = new KeyManager();
+const keyManager = new PrivateKeyManager();
 
 module.exports = keyManager;

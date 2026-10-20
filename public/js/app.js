@@ -27,17 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const viewCode = document.getElementById('view-code');
   const langSelect = document.getElementById('code-lang-select');
   
-  // Modal elements
-  const keysModal = document.getElementById('keys-modal');
-  const btnOpenKeys = document.getElementById('btn-open-keys');
-  const btnCloseKeys = document.getElementById('btn-close-keys');
-  const btnCreateKey = document.getElementById('btn-create-key');
-  const keyList = document.getElementById('key-list');
-  const activeKeyDisplay = document.getElementById('active-api-key');
+  // Auth modal elements
+  const authModal = document.getElementById('auth-modal');
+  const btnOpenAuth = document.getElementById('btn-open-auth');
+  const btnCloseAuth = document.getElementById('btn-close-auth');
+  const btnSaveAuth = document.getElementById('btn-save-auth');
+  const inputMasterKey = document.getElementById('input-master-key');
+  const authErrorMsg = document.getElementById('auth-error-msg');
+  const authBtnLabel = document.getElementById('auth-btn-label');
   const quotaText = document.getElementById('quota-text');
+  const curlExample = document.getElementById('curl-example');
 
   let currentSearchData = null;
-  let activeApiKey = 'sk_live_demo1234567890abcdef';
+  // Retrieve saved key from localStorage or default master key
+  let activeApiKey = localStorage.getItem('searchapi_owner_key') || 'sk_private_master_daniel_2026';
+
+  function updateAuthDisplay() {
+    if (activeApiKey) {
+      authBtnLabel.textContent = `Chave: ${activeApiKey.slice(0, 8)}...`;
+      inputMasterKey.value = activeApiKey;
+      if (curlExample) {
+        curlExample.textContent = `curl "http://localhost:3000/api/v1/search?engine=google&q=inteligencia+artificial&api_key=${activeApiKey}"`;
+      }
+    }
+  }
 
   // Syntax highlighter for JSON
   function syntaxHighlight(json) {
@@ -108,7 +121,7 @@ data = response.json()
 print(data)`;
 
       case 'javascript':
-        return `// Using native fetch
+        return `// Chamada via fetch nativo
 const url = new URL("${origin}/api/v1/search");
 url.search = new URLSearchParams({
   engine: "${engine}",
@@ -126,7 +139,7 @@ console.log(data);`;
       case 'nodejs':
         return `const axios = require('axios');
 
-async function runSearch() {
+async function buscarSERP() {
   const response = await axios.get("${origin}/api/v1/search", {
     params: {
       engine: "${engine}",
@@ -140,7 +153,7 @@ async function runSearch() {
   console.log(response.data);
 }
 
-runSearch();`;
+buscarSERP();`;
 
       case 'go':
         return `package main
@@ -184,7 +197,7 @@ print_r($data);
   async function performSearch() {
     const q = queryInput.value.trim();
     if (!q) {
-      alert('Please enter a search query.');
+      alert('Por favor, informe um termo de busca.');
       return;
     }
 
@@ -202,13 +215,13 @@ print_r($data);
         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" style="opacity:0.25"></circle>
         <path fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" style="opacity:0.75"></path>
       </svg>
-      Searching SERP...
+      Consultando SERP...
     `;
 
-    statusBadge.textContent = 'Executing...';
+    statusBadge.textContent = 'Consultando...';
     statusBadge.className = 'stat-pill';
     latencyBadge.textContent = '--';
-    resultsCountBadge.textContent = '-- results';
+    resultsCountBadge.textContent = '-- itens';
 
     const params = new URLSearchParams({
       engine,
@@ -238,21 +251,28 @@ print_r($data);
         latencyBadge.textContent = `${data.search_metadata?.total_time_taken || clientLatency}s`;
         
         const count = data.organic_results?.length || data.news_results?.length || data.images_results?.length || data.local_results?.length || data.video_results?.length || data.shopping_results?.length || data.suggestions?.length || 0;
-        resultsCountBadge.textContent = `${count} items`;
+        resultsCountBadge.textContent = `${count} itens`;
         searchIdBadge.textContent = data.search_metadata?.id || 'search_live';
 
         jsonOutput.innerHTML = syntaxHighlight(data);
         updateCodeView();
-        refreshAccountQuota();
+      } else if (res.status === 401) {
+        statusBadge.textContent = '401 Não Autorizado';
+        statusBadge.className = 'stat-pill stat-danger';
+        jsonOutput.innerHTML = syntaxHighlight(data);
+        // Prompt for key
+        authErrorMsg.textContent = 'Chave mestra incorreta ou ausente. Insira sua chave para desbloquear.';
+        authErrorMsg.style.display = 'block';
+        authModal.classList.add('open');
       } else {
-        statusBadge.textContent = `${res.status} Error`;
+        statusBadge.textContent = `${res.status} Erro`;
         statusBadge.className = 'stat-pill stat-danger';
         jsonOutput.innerHTML = syntaxHighlight(data);
       }
     } catch (err) {
-      statusBadge.textContent = 'Error';
+      statusBadge.textContent = 'Erro de Conexão';
       statusBadge.className = 'stat-pill stat-danger';
-      jsonOutput.textContent = JSON.stringify({ error: 'Network Error', message: err.message }, null, 2);
+      jsonOutput.textContent = JSON.stringify({ error: 'Erro de Rede', message: err.message }, null, 2);
     } finally {
       btnSubmit.disabled = false;
       btnSubmit.innerHTML = `
@@ -260,7 +280,7 @@ print_r($data);
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        Send SERP Request
+        Executar Busca SERP
       `;
     }
   }
@@ -317,7 +337,7 @@ print_r($data);
     if (currentSearchData) {
       navigator.clipboard.writeText(JSON.stringify(currentSearchData, null, 2));
       const originalText = copyBtn.innerHTML;
-      copyBtn.innerHTML = '✓ Copied!';
+      copyBtn.innerHTML = '✓ Copiado!';
       setTimeout(() => { copyBtn.innerHTML = originalText; }, 1500);
     }
   });
@@ -325,77 +345,58 @@ print_r($data);
   copyCodeBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(codeOutput.textContent);
     const originalText = copyCodeBtn.innerHTML;
-    copyCodeBtn.innerHTML = '✓ Copied!';
+    copyCodeBtn.innerHTML = '✓ Copiado!';
     setTimeout(() => { copyCodeBtn.innerHTML = originalText; }, 1500);
   });
 
-  // Account / Quota loader
-  async function refreshAccountQuota() {
-    try {
-      const res = await fetch(`/api/v1/account?api_key=${activeApiKey}`);
-      const data = await res.json();
-      if (data && data.plan_searches_limit) {
-        quotaText.textContent = `${data.searches_this_month} / ${data.plan_searches_limit} searches`;
-      }
-    } catch(e) {}
-  }
-
-  // Load API keys list
-  async function loadApiKeys() {
-    try {
-      const res = await fetch('/api/v1/api-keys');
-      const keys = await res.json();
-      keyList.innerHTML = '';
-      keys.forEach(k => {
-        const item = document.createElement('div');
-        item.className = 'key-item';
-        item.innerHTML = `
-          <div>
-            <div style="font-weight:600;font-size:0.9rem;color:#fff;">${k.name}</div>
-            <div class="key-value">${k.key}</div>
-            <div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Used: ${k.requestsUsed} requests • ${k.plan}</div>
-          </div>
-          <button class="btn-copy" onclick="navigator.clipboard.writeText('${k.key}'); alert('Key copied to clipboard!');">Copy</button>
-        `;
-        keyList.appendChild(item);
-      });
-    } catch(e) {}
-  }
-
-  btnOpenKeys.addEventListener('click', () => {
-    loadApiKeys();
-    keysModal.classList.add('open');
+  // Auth Modal handlers
+  btnOpenAuth.addEventListener('click', () => {
+    authErrorMsg.style.display = 'none';
+    inputMasterKey.value = activeApiKey;
+    authModal.classList.add('open');
   });
 
-  btnCloseKeys.addEventListener('click', () => {
-    keysModal.classList.remove('open');
+  btnCloseAuth.addEventListener('click', () => {
+    authModal.classList.remove('open');
   });
 
-  keysModal.addEventListener('click', (e) => {
-    if (e.target === keysModal) keysModal.classList.remove('open');
+  authModal.addEventListener('click', (e) => {
+    if (e.target === authModal) authModal.classList.remove('open');
   });
 
-  btnCreateKey.addEventListener('click', async () => {
-    const keyName = prompt('Enter a name for this API key:', 'Production Service');
-    if (!keyName) return;
+  btnSaveAuth.addEventListener('click', async () => {
+    const key = inputMasterKey.value.trim();
+    if (!key) {
+      authErrorMsg.textContent = 'Por favor, informe a chave mestra.';
+      authErrorMsg.style.display = 'block';
+      return;
+    }
+
     try {
-      const res = await fetch('/api/v1/api-keys', {
+      const res = await fetch('/api/v1/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: keyName, plan: 'Developer' })
+        body: JSON.stringify({ api_key: key })
       });
-      const newKey = await res.json();
-      activeApiKey = newKey.key;
-      activeKeyDisplay.textContent = activeApiKey;
-      loadApiKeys();
-      refreshAccountQuota();
-      alert(`API Key created: ${newKey.key}`);
-    } catch(e) {
-      alert('Error creating API key');
+      const data = await res.json();
+      if (res.ok && data.success) {
+        activeApiKey = key;
+        localStorage.setItem('searchapi_owner_key', key);
+        updateAuthDisplay();
+        authModal.classList.remove('open');
+        authErrorMsg.style.display = 'none';
+        performSearch();
+      } else {
+        authErrorMsg.textContent = 'Chave mestra inválida. Verifique sua chave no arquivo .env.';
+        authErrorMsg.style.display = 'block';
+      }
+    } catch (e) {
+      authErrorMsg.textContent = 'Erro ao validar chave com o servidor.';
+      authErrorMsg.style.display = 'block';
     }
   });
 
-  // Initial load
-  refreshAccountQuota();
+  // Initial setup
+  updateAuthDisplay();
   performSearch();
 });
