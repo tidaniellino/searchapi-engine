@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SearchApi - Real-Time SERP API & Web Scraping Platform</title>
+  <meta name="description" content="Scrape Google, Bing, YouTube, Amazon, Google Scholar, Google News, Google Maps, and receive structured JSON in real-time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-title">SearchApi</span>
+        <span class="brand-badge">SERP ENGINE v1.0</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="#playground" class="nav-link active">Playground</a>
+      <a href="#engines-showcase" class="nav-link">Engines</a>
+      <a href="#docs" class="nav-link">Documentation</a>
+      
+      <div class="quota-indicator">
+        <div class="quota-dot"></div>
+        <span id="quota-text">142 / 10,000 searches</span>
+      </div>
+
+      <button id="btn-open-keys" class="btn-header">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 2l-2 2m-2-2l2 2m-2 2l2-2m-7 7l4 4-2 2-4-4m0 0l-5 5a3 3 0 11-4-4l5-5m4 4l-4-4"></path>
+        </svg>
+        API Keys
+      </button>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-wrapper">
+    
+    <!-- Intro Banner -->
+    <div class="page-intro" id="playground">
+      <h1>SERP API Interactive Playground</h1>
+      <p>Test real-time search engine queries, inspect structured JSON results, and generate production-ready code.</p>
+    </div>
+
+    <!-- Playground Grid -->
+    <div class="playground-grid">
+      
+      <!-- Left: Request Configuration -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Request Parameters
+          </div>
+          <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">GET /api/v1/search</span>
+        </div>
+
+        <form id="search-form" class="panel-body">
+          
+          <!-- Engine Selector -->
+          <div class="form-group">
+            <label class="form-label">
+              Engine <span class="req">*</span>
+            </label>
+            <select id="engine-select" class="form-control">
+              <option value="google" selected>Google Search (google)</option>
+              <option value="google_news">Google News (google_news)</option>
+              <option value="google_images">Google Images (google_images)</option>
+              <option value="google_scholar">Google Scholar (google_scholar)</option>
+              <option value="google_maps">Google Maps / Local (google_maps)</option>
+              <option value="google_autocomplete">Google Autocomplete (google_autocomplete)</option>
+              <option value="bing">Bing Search (bing)</option>
+              <option value="duckduckgo">DuckDuckGo (duckduckgo)</option>
+              <option value="youtube">YouTube Search (youtube)</option>
+              <option value="amazon">Amazon Search (amazon)</option>
+            </select>
+          </div>
+
+          <!-- Query Input -->
+          <div class="form-group">
+            <label class="form-label">
+              Query (q) <span class="req">*</span>
+            </label>
+            <input type="text" id="query-input" class="form-control" value="artificial intelligence" placeholder="e.g. coffee shops in Austin, TX">
+            
+            <!-- Quick Presets -->
+            <div class="preset-list">
+              <span class="preset-pill" data-query="artificial intelligence" data-engine="google">ChatGPT & AI</span>
+              <span class="preset-pill" data-query="coffee shops in austin tx" data-engine="google_maps">Austin Coffee</span>
+              <span class="preset-pill" data-query="elon musk" data-engine="google_news">Elon Musk News</span>
+              <span class="preset-pill" data-query="quantum computing" data-engine="google_scholar">Quantum Papers</span>
+              <span class="preset-pill" data-query="tesla cybercab" data-engine="google_images">Cybercab Photos</span>
+              <span class="preset-pill" data-query="mechanical keyboard" data-engine="amazon">Amazon Keyboards</span>
+            </div>
+          </div>
+
+          <!-- Localization: Language & Country -->
+          <div class="two-col">
+            <div class="form-group">
+              <label class="form-label">Language (hl)</label>
+              <select id="hl-input" class="form-control">
+                <option value="en" selected>English (en)</option>
+                <option value="pt-br">Portuguese (pt-br)</option>
+                <option value="es">Spanish (es)</option>
+                <option value="fr">French (fr)</option>
+                <option value="de">German (de)</option>
+                <option value="ja">Japanese (ja)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Country (gl)</label>
+              <select id="gl-input" class="form-control">
+                <option value="us" selected>United States (us)</option>
+                <option value="br">Brazil (br)</option>
+                <option value="gb">United Kingdom (gb)</option>
+                <option value="de">Germany (de)</option>
+                <option value="fr">France (fr)</option>
+                <option value="ca">Canada (ca)</option>
+                <option value="au">Australia (au)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Device & Results count -->
+          <div class="two-col">
+            <div class="form-group">
+              <label class="form-label">Device</label>
+              <select id="device-select" class="form-control">
+                <option value="desktop" selected>Desktop</option>
+                <option value="mobile">Mobile</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Results (num)</label>
+              <input type="number" id="num-input" class="form-control" value="10" min="1" max="100">
+            </div>
+          </div>
+
+          <!-- Page & Location -->
+          <div class="two-col">
+            <div class="form-group">
+              <label class="form-label">Page (page)</label>
+              <input type="number" id="page-input" class="form-control" value="1" min="1" max="50">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Location (optional)</label>
+              <input type="text" id="location-input" class="form-control" placeholder="e.g. Austin, Texas">
+            </div>
+          </div>
+
+          <!-- Action button -->
+          <button type="submit" id="btn-submit" class="btn-submit">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Send SERP Request
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Right: Live Response Viewer & Code Generator -->
+      <div class="panel-card response-container">
+        
+        <div class="panel-header">
+          <div class="response-tabs">
+            <button id="tab-json" class="tab-btn active">Formatted JSON</button>
+            <button id="tab-code" class="tab-btn">Code Snippets</button>
+          </div>
+
+          <div class="meta-stats">
+            <span id="status-badge" class="stat-pill stat-success">200 OK</span>
+            <span id="latency-badge" class="stat-pill stat-latency">0.32s</span>
+            <span id="results-count-badge" class="stat-pill" style="color:#e2e8f0;">10 items</span>
+            <span id="search-id-badge" class="stat-pill" style="color:var(--text-muted);font-size:0.75rem;">search_live</span>
+          </div>
+        </div>
+
+        <!-- JSON View -->
+        <div id="view-json" class="code-viewer-wrapper" style="display:flex;">
+          <div class="code-toolbar">
+            <span class="code-title">Content-Type: application/json; charset=utf-8</span>
+            <button id="copy-json-btn" class="btn-copy">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy JSON
+            </button>
+          </div>
+          <pre id="json-output" class="code-content">// Search results will appear here in real time...</pre>
+        </div>
+
+        <!-- Code Snippet View -->
+        <div id="view-code" class="code-viewer-wrapper" style="display:none;">
+          <div class="code-toolbar">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="code-title">Language:</span>
+              <select id="code-lang-select" style="background:#1e293b;border:1px solid #334155;color:#fff;border-radius:4px;padding:2px 8px;font-size:0.8rem;">
+                <option value="curl" selected>cURL</option>
+                <option value="python">Python (requests)</option>
+                <option value="javascript">JavaScript (fetch)</option>
+                <option value="nodejs">Node.js (axios)</option>
+                <option value="go">Go</option>
+                <option value="php">PHP</option>
+              </select>
+            </div>
+            <button id="copy-code-btn" class="btn-copy">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy Snippet
+            </button>
+          </div>
+          <pre id="code-output" class="code-content"></pre>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Supported Search Engines Grid -->
+    <h2 class="section-title" id="engines-showcase">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+        <line x1="8" y1="21" x2="16" y2="21"></line>
+        <line x1="12" y1="17" x2="12" y2="21"></line>
+      </svg>
+      Supported Search Engines & Verticals
+    </h2>
+
+    <div class="engines-grid">
+      
+      <div class="engine-card" data-engine="google">
+        <div class="engine-card-header">
+          <div class="engine-icon">G</div>
+          <div class="engine-card-title">Google Search API</div>
+          <div class="engine-param-badge">engine=google</div>
+        </div>
+        <p class="engine-card-desc">Extract organic web results, knowledge graphs, answer boxes, people also ask, sitelinks, and related searches in real time.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">Organic</span>
+          <span class="feature-tag">Knowledge Graph</span>
+          <span class="feature-tag">PAA</span>
+          <span class="feature-tag">Sitelinks</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="google_news">
+        <div class="engine-card-header">
+          <div class="engine-icon">N</div>
+          <div class="engine-card-title">Google News API</div>
+          <div class="engine-param-badge">engine=google_news</div>
+        </div>
+        <p class="engine-card-desc">Real-time news articles, publication timestamps, original sources, and snippet previews from Google News.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">Headlines</span>
+          <span class="feature-tag">Timestamp</span>
+          <span class="feature-tag">Sources</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="google_images">
+        <div class="engine-card-header">
+          <div class="engine-icon">I</div>
+          <div class="engine-card-title">Google Images API</div>
+          <div class="engine-param-badge">engine=google_images</div>
+        </div>
+        <p class="engine-card-desc">High-resolution image URLs, dimensions (width/height), thumbnails, and source domain references.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">High-Res</span>
+          <span class="feature-tag">Dimensions</span>
+          <span class="feature-tag">Thumbnails</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="google_scholar">
+        <div class="engine-card-header">
+          <div class="engine-icon">S</div>
+          <div class="engine-card-title">Google Scholar API</div>
+          <div class="engine-param-badge">engine=google_scholar</div>
+        </div>
+        <p class="engine-card-desc">Academic papers, research literature, author citations, publication years, and DOI reference links.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">Citations</span>
+          <span class="feature-tag">Authors</span>
+          <span class="feature-tag">DOIs</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="google_maps">
+        <div class="engine-card-header">
+          <div class="engine-icon">M</div>
+          <div class="engine-card-title">Google Maps / Local API</div>
+          <div class="engine-param-badge">engine=google_maps</div>
+        </div>
+        <p class="engine-card-desc">Local points of interest, GPS coordinates, formatted addresses, business types, ratings, and reviews.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">GPS Lat/Lon</span>
+          <span class="feature-tag">Ratings</span>
+          <span class="feature-tag">Address</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="google_autocomplete">
+        <div class="engine-card-header">
+          <div class="engine-icon">A</div>
+          <div class="engine-card-title">Google Autocomplete</div>
+          <div class="engine-param-badge">engine=google_autocomplete</div>
+        </div>
+        <p class="engine-card-desc">Live search suggestions, keywords auto-completion, and relevance ranking directly from Google Chrome.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">Instant</span>
+          <span class="feature-tag">Relevance</span>
+          <span class="feature-tag">Typeahead</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="bing">
+        <div class="engine-card-header">
+          <div class="engine-icon">B</div>
+          <div class="engine-card-title">Bing Search API</div>
+          <div class="engine-param-badge">engine=bing</div>
+        </div>
+        <p class="engine-card-desc">Microsoft Bing web results with fully decoded target destination URLs, sitelinks, and related query suggestions.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">Decoded URLs</span>
+          <span class="feature-tag">Deep Links</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="youtube">
+        <div class="engine-card-header">
+          <div class="engine-icon">Y</div>
+          <div class="engine-card-title">YouTube Search API</div>
+          <div class="engine-param-badge">engine=youtube</div>
+        </div>
+        <p class="engine-card-desc">Video search results, video length, view counts, publisher channels, and high-definition video thumbnails.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">Duration</span>
+          <span class="feature-tag">Views</span>
+          <span class="feature-tag">Channel</span>
+        </div>
+      </div>
+
+      <div class="engine-card" data-engine="amazon">
+        <div class="engine-card-header">
+          <div class="engine-icon">AZ</div>
+          <div class="engine-card-title">Amazon Search API</div>
+          <div class="engine-param-badge">engine=amazon</div>
+        </div>
+        <p class="engine-card-desc">E-commerce products, ASIN codes, prices, customer review counts, star ratings, and Prime eligibility.</p>
+        <div class="engine-card-features">
+          <span class="feature-tag">ASIN</span>
+          <span class="feature-tag">Price & Currency</span>
+          <span class="feature-tag">Ratings</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- API Reference & Quickstart -->
+    <h2 class="section-title" id="docs">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      API Reference & Quickstart
+    </h2>
+
+    <div class="panel-card" style="padding:1.5rem;margin-bottom:3rem;">
+      <h3 style="color:#fff;font-size:1.1rem;margin-bottom:0.75rem;">Authentication & Endpoint</h3>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">
+        All API requests are sent via HTTP <code>GET</code> to <code>/api/v1/search</code>. Authenticate by providing your API key either as a query parameter (<code>?api_key=sk_live_...</code>) or in the HTTP Authorization header (<code>Authorization: Bearer sk_live_...</code>).
+      </p>
+
+      <div style="background:#070b14;border:1px solid var(--border-color);border-radius:8px;padding:1rem;font-family:var(--font-mono);font-size:0.85rem;color:#38bdf8;overflow-x:auto;">
+        curl "http://localhost:3000/api/v1/search?engine=google&q=coffee+shops+in+austin&api_key=sk_live_demo1234567890abcdef"
+      </div>
+    </div>
+
+  </main>
+
+  <!-- API Keys Modal -->
+  <div id="keys-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">API Keys & Quota Management</div>
+        <button id="btn-close-keys" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted);font-size:0.85rem;">Use these keys to authenticate your requests against the SearchApi REST endpoints.</p>
+        
+        <div style="margin-top:1rem;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:600;font-size:0.85rem;color:#fff;">Active Keys</span>
+          <button id="btn-create-key" class="btn-header" style="background:var(--accent-primary);border-color:var(--accent-primary);">
+            + Create New Key
+          </button>
+        </div>
+
+        <div id="key-list" class="key-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div>SearchApi.io Engine Reconstruction • High-Performance SERP Scraping Platform</div>
+    <div style="font-family:var(--font-mono);font-size:0.8rem;">Status: Operational • All Engines Healthy</div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
